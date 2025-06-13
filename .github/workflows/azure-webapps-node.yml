@@ -8,7 +8,7 @@ on:
 env:
   AZURE_WEBAPP_NAME: eduplan-app                   # jouw Azure Web App naam
   AZURE_WEBAPP_PACKAGE_PATH: './frontend/dist'     # output van Vite build
-  NODE_VERSION: '22.x'
+  NODE_VERSION: '20.x'
 
 permissions:
   contents: read
