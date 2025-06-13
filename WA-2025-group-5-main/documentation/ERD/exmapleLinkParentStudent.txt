@@ -1,0 +1,65 @@
+-- 1. Create a parent user with access code and link to student
+-- (This assumes you know the student's information)
+
+DO $$
+DECLARE
+    new_parent_id INTEGER;
+    parent_role_id INTEGER;
+    access_code VARCHAR(50);
+    target_student_id INTEGER := 123; -- Replace with actual student ID
+BEGIN
+    -- Generate unique access code
+    access_code := generate_unique_parent_code();
+
+    -- Get the Parent role ID
+    SELECT role_id INTO parent_role_id FROM role WHERE name = 'Parent';
+
+    -- Insert the parent user
+    INSERT INTO "user" (
+        email,
+        name,
+        password,  -- NULL because parents don't use passwords
+        phone,
+        unique_access_code,
+        notes,
+        is_active
+    ) VALUES (
+        'john.doe@example.com',
+        'John Doe',
+        NULL,  -- No password for parent
+        '+31612345678',
+        access_code,
+        'Parent of student ID ' || target_student_id,
+        TRUE
+    ) RETURNING user_id INTO new_parent_id;
+
+    -- Assign Parent role
+    INSERT INTO user_role (user_id, role_id)
+    VALUES (new_parent_id, parent_role_id);
+
+    -- Link parent to student
+    INSERT INTO parent_student (
+        parent_id,
+        student_id,
+        relationship_type,
+        is_primary_contact
+    ) VALUES (
+        new_parent_id,
+        target_student_id,
+        'Father',  -- or 'Mother', 'Guardian'
+        TRUE
+    );
+
+    -- Log the creation
+    INSERT INTO log (user_id, action, entity_type, entity_id, details)
+    VALUES (new_parent_id, 'CREATE', 'user', new_parent_id,
+            jsonb_build_object(
+                'role', 'Parent',
+                'access_code', access_code,
+                'linked_student_id', target_student_id
+            ));
+
+    -- Display result
+    RAISE NOTICE 'Created parent user ID: %, Access Code: %, Linked to student: %',
+                  new_parent_id, access_code, target_student_id;
+END $$;

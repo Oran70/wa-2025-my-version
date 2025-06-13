@@ -1,0 +1,11 @@
+.footer {
+    background-color: var(--background-light);
+    padding: 20px;
+    text-align: center;
+}
+
+.footer-links {
+    justify-content: right;
+    display: flex;
+    flex-direction: column;
+}

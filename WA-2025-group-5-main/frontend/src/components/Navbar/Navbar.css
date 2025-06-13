@@ -1,0 +1,209 @@
+.navbar {
+    background-color: var(--color-white);
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: var(--shadow);
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+.navbar-logo-img {
+    width: 160px;
+    height: auto;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-hover);
+}
+
+.nav-auth {
+    display: flex;
+    align-items: center;
+}
+
+.nav-button {
+    text-decoration: none;
+    padding: 8px 16px;
+    margin-left: 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.login {
+    background-color: var(--primary-color);
+    color: var(--color-white);
+}
+
+.login:hover {
+    background-color: var(--secondary-hover);
+    color: var(--color-white);
+}
+
+.nav-buttons-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.nav-button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 140px; /* zelfde breedte */
+    text-align: center;
+}
+
+/* Gele knop */
+.btn-yellow {
+    background-color: var(--color-yellow);
+    color: var(--color-black);
+}
+
+.btn-yellow:hover {
+        background-color: var(--secondary-hover);
+        color: var(--color-white);
+}
+
+.login {
+    background-color: var(--color-yellow);
+    color: var(--color-black);
+}
+
+.login:hover {
+    background-color: var(--secondary-hover);
+    color: var(--color-white);
+}
+
+.menu-icon {
+    display: none;
+}
+
+/* Responsive styles */
+/* Burger Menu */
+
+.burger-menu-icon {
+    width: 30px;
+    height: auto;
+    cursor: pointer;
+}
+
+.navbar-logos {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.navbar-school-logo {
+    height: 55px;
+    object-fit: contain;
+}
+
+.navbar-logo-img {
+    height: 100px;
+    object-fit: contain;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 960px) {
+    .menu-icon {
+        display: block;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .nav-menu {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 80px;
+        left: -100%;
+        opacity: 1;
+        transition: all 0.5s ease;
+        background-color: var(--color-white);
+    }
+
+    .nav-menu.active {
+        left: 0;
+        opacity: 1;
+        transition: all 0.5s ease;
+        z-index: 1;
+        box-shadow: var(--shadow);
+    }
+
+    .nav-item {
+        height: 60px;
+        width: 100%;
+    }
+
+    .nav-link {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+    .nav-auth {
+        display: none;
+    }
+    
+    .nav-buttons-container {
+    padding: 1rem;
+    gap: 12px;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+
+}

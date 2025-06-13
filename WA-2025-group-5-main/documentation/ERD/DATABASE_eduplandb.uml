@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>78b66589-7594-444a-b96f-2640942f2abb.DATABASE:eduplandb</OriginalElement>
+  <nodes>
+    <node x="428.5" y="432.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.teacher_class</node>
+    <node x="-167.0" y="660.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.availability</node>
+    <node x="-23.5" y="0.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user</node>
+    <node x="234.0" y="1260.5">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.SequelizeMeta</node>
+    <node x="598.5" y="-224.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.level</node>
+    <node x="300.5" y="756.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user_role</node>
+    <node x="578.0" y="84.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.class</node>
+    <node x="596.5" y="696.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.student</node>
+    <node x="-137.0" y="1068.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.appointment</node>
+    <node x="338.5" y="96.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.role</node>
+    <node x="38.5" y="396.0">78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.log</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.appointment" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.availability" relationship="REFERENCES">
+      <point x="0.0" y="-224.0" />
+      <point x="30.0" y="1032.0" />
+      <point x="-10.0" y="1032.0" />
+      <point x="0.0" y="152.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.availability" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user" relationship="REFERENCES">
+      <point x="0.0" y="-152.0" />
+      <point x="-10.0" y="372.0" />
+      <point x="170.0" y="372.0" />
+      <point x="170.0" y="332.0" />
+      <point x="176.75" y="332.0" />
+      <point x="66.75" y="152.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.log" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user" relationship="REFERENCES">
+      <point x="0.0" y="-116.0" />
+      <point x="170.0" y="332.0" />
+      <point x="176.75" y="332.0" />
+      <point x="66.75" y="152.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.class" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.level" relationship="REFERENCES">
+      <point x="0.0" y="-68.0" />
+      <point x="0.0" y="56.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.teacher_class" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user" relationship="REFERENCES">
+      <point x="-50.75" y="-80.0" />
+      <point x="479.25" y="372.0" />
+      <point x="170.0" y="372.0" />
+      <point x="170.0" y="332.0" />
+      <point x="176.75" y="332.0" />
+      <point x="66.75" y="152.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.student" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.level" relationship="REFERENCES">
+      <point x="66.75" y="-116.0" />
+      <point x="796.75" y="672.0" />
+      <point x="790.0" y="672.0" />
+      <point x="790.0" y="72.0" />
+      <point x="670.0" y="72.0" />
+      <point x="0.0" y="56.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.student" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.class" relationship="REFERENCES">
+      <point x="-66.75" y="-116.0" />
+      <point x="663.25" y="412.0" />
+      <point x="670.0" y="412.0" />
+      <point x="0.0" y="68.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.appointment" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user" relationship="REFERENCES">
+      <point x="-111.33333333333337" y="-224.0" />
+      <point x="-81.33333333333337" y="1032.0" />
+      <point x="-190.0" y="1032.0" />
+      <point x="-190.0" y="332.0" />
+      <point x="43.25" y="332.0" />
+      <point x="-66.75" y="152.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.appointment" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.student" relationship="REFERENCES">
+      <point x="111.33333333333334" y="-224.0" />
+      <point x="141.33333333333337" y="1032.0" />
+      <point x="730.0" y="1032.0" />
+      <point x="0.0" y="116.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user_role" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user" relationship="REFERENCES">
+      <point x="-34.75" y="-56.0" />
+      <point x="335.25" y="372.0" />
+      <point x="170.0" y="372.0" />
+      <point x="170.0" y="332.0" />
+      <point x="176.75" y="332.0" />
+      <point x="66.75" y="152.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.teacher_class" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.class" relationship="REFERENCES">
+      <point x="50.75" y="-80.0" />
+      <point x="580.75" y="412.0" />
+      <point x="670.0" y="412.0" />
+      <point x="0.0" y="68.0" />
+    </edge>
+    <edge source="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.user_role" target="78b66589-7594-444a-b96f-2640942f2abb.TABLE:eduplandb.public.role" relationship="REFERENCES">
+      <point x="34.75" y="-56.0" />
+      <point x="404.75" y="352.0" />
+      <point x="410.0" y="352.0" />
+      <point x="0.0" y="56.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.3795454545454545" showDependencies="false" x="282.0" y="646.0000000000001" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+

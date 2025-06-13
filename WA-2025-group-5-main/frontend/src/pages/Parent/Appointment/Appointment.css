@@ -1,0 +1,376 @@
+/* Appointment Form Styles - Matching Teacher Availability */
+
+.appointment-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--color-white);
+    border-radius: 1rem;
+    border: 20px solid var(--color-yellow);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.appointment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.form-description {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-top: -0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-select {
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: var(--font-main);
+    background-color: var(--color-white);
+    transition: border-color 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--color-brown);
+}
+
+.form-input:hover,
+.form-select:hover {
+    border-color: var(--color-brown);
+}
+
+.form-input:disabled {
+    background-color: var(--background-light);
+    color: var(--text-light);
+    cursor: not-allowed;
+}
+
+.form-input:disabled:hover {
+    border-color: var(--border-color);
+}
+
+.form-textarea {
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: var(--font-main);
+    background-color: var(--color-white);
+    transition: border-color 0.2s ease;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--color-brown);
+}
+
+.form-textarea:hover {
+    border-color: var(--color-brown);
+}
+
+/* Student Information Group Styles */
+.student-info-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.info-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-input-wrapper label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+/* Contact Information Group */
+.contact-info-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Date and Time Group */
+.datetime-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.datetime-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.datetime-input-wrapper label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background-color: var(--color-brown);
+    color: var(--color-white);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-brown-dark, #8B4513);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--background-light);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--border-color);
+    border-color: var(--color-brown);
+}
+
+.submit-btn {
+    min-width: 150px;
+}
+
+.cancel-btn {
+    min-width: 120px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .appointment-form-container {
+        margin: 0 1rem;
+        padding: 1.5rem;
+        border-width: 15px;
+    }
+
+    .student-info-group,
+    .contact-info-group,
+    .datetime-group {
+        grid-template-columns: 1fr;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .appointment-form-container {
+        padding: 1rem;
+        border-width: 10px;
+    }
+
+    .form-label {
+        font-size: 1rem;
+    }
+
+    .form-description {
+        font-size: 0.85rem;
+    }
+
+    .btn {
+        padding: 0.875rem 1rem;
+    }
+}
+
+/* Focus styles for accessibility */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+.btn:focus {
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+/* Improved disabled state for better UX */
+.form-input:disabled {
+    opacity: 0.7;
+}
+
+/* Better hover states */
+.btn:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Confirmation Popup Styles */
+.confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.confirmation-card {
+    background-color: var(--color-white);
+    border-radius: 1rem;
+    border: 10px solid var(--color-yellow);
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+.confirmation-header {
+    margin-bottom: 1.5rem;
+}
+
+.confirmation-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+    color: white;
+    font-weight: bold;
+}
+
+.confirmation-header h2 {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.confirmation-content {
+    margin-bottom: 2rem;
+}
+
+.confirmation-message {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.confirmation-email-info {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.confirmation-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.confirmation-btn {
+    min-width: 120px;
+    padding: 0.875rem 2rem;
+    font-size: 1.1rem;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive design for popup */
+@media (max-width: 768px) {
+    .confirmation-card {
+        padding: 1.5rem;
+        border-width: 8px;
+        margin: 1rem;
+    }
+
+    .confirmation-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .confirmation-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .confirmation-card {
+        padding: 1rem;
+        border-width: 5px;
+    }
+
+    .confirmation-btn {
+        width: 100%;
+    }
+}
