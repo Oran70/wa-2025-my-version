@@ -1,80 +1,75 @@
+import api from './api';
+
 class ParentApiService {
-    constructor(baseURL = 'http://localhost:3000/api/parent') {
-        this.baseURL = baseURL;
+    /**
+     * Validates the parent access code.
+     * @param {string} accessCode - The access code provided by the parent.
+     * @returns {Promise<any>} The response data from the API.
+     */
+    validateAccessCode(accessCode) {
+        return api.post('/validate-access-code', { accessCode });
     }
 
-    async makeRequest(url, options = {}) {
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers,
-            },
-            ...options,
-        };
-
-        try {
-            const response = await fetch(`${this.baseURL}${url}`, config);
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || `HTTP error! status: ${response.status}`);
-            }
-
-            return data;
-        } catch (error) {
-            console.error('API request failed:', error);
-            throw error;
+    /**
+     * Fetches the availability for a specific teacher.
+     * @param {string} teacherId - The UUID of the teacher.
+     * @returns {Promise<any>} The response data from the API.
+     */
+    getTeacherAvailability(teacherId) {
+        if (!teacherId) {
+            return Promise.resolve({ availability: [] }); // Return empty if no teacherId
         }
+        return api.get(`/teachers/${teacherId}/availability`);
     }
 
-    // Validate access code
-    async validateAccessCode(accessCode) {
-        return this.makeRequest('/validate-access-code', {
-            method: 'POST',
-            body: JSON.stringify({ accessCode }),
-        });
-    }
-
-    // Get teacher availability
-    async getTeacherAvailability(teacherId, startDate, endDate) {
-        const params = new URLSearchParams();
-        if (startDate) params.append('startDate', startDate);
-        if (endDate) params.append('endDate', endDate);
-
-        const queryString = params.toString();
-        const url = `/teachers/${teacherId}/availability${queryString ? `?${queryString}` : ''}`;
-
-        return this.makeRequest(url);
-    }
-
-    // Create appointment
-    async createAppointment(appointmentData) {
-        return this.makeRequest('/appointments', {
-            method: 'POST',
-            body: JSON.stringify(appointmentData),
-        });
-    }
-
-    // Get appointment confirmation
-    async getAppointmentConfirmation(appointmentId) {
-        return this.makeRequest(`/appointments/${appointmentId}/confirmation`);
-    }
-
-    // Cancel appointment
-    async cancelAppointment(appointmentId, accessCode, cancellationReason) {
-        return this.makeRequest(`/appointments/${appointmentId}/cancel`, {
-            method: 'PUT',
-            body: JSON.stringify({ accessCode, cancellationReason }),
-        });
-    }
-
-    // Get parent dashboard
-    async getDashboard(accessCode) {
-        return this.makeRequest('/dashboard', {
-            method: 'POST',
-            body: JSON.stringify({ accessCode }),
-        });
+    /**
+     * Creates a new appointment.
+     * @param {object} appointmentData - The data for the new appointment.
+     * @returns {Promise<any>} The response data from the API.
+     */
+    createAppointment(appointmentData) {
+        return api.post('/appointments', appointmentData);
     }
 }
 
-export default ParentApiService;
+// Export a singleton instance of the service
+const parentApiService = new ParentApiService();
+export default parentApiService;
+
+
+
+
+//     /**
+//      * Gets the confirmation details for a specific appointment.
+//      * @param {string} appointmentId - The UUID of the appointment.
+//      * @returns {Promise} - The detailed appointment confirmation.
+//      */
+//     getAppointmentConfirmation(appointmentId) {
+//         return api.get(`/parent/appointments/${appointmentId}/confirmation`);
+//     }
+//
+//     /**
+//      * Cancels an existing appointment.
+//      * @param {string} appointmentId - The UUID of the appointment to cancel.
+//      * @param {object} cancellationData - The data required for cancellation (e.g., accessCode, reason).
+//      * @returns {Promise} - A confirmation message.
+//      */
+//     cancelAppointment(appointmentId, cancellationData) {
+//         return api.put(`/parent/appointments/${appointmentId}/cancel`, cancellationData);
+//     }
+//
+//     /**
+//      * Gets all necessary data for the parent dashboard.
+//      * @param {string} accessCode - The parent's access code.
+//      * @returns {Promise} - The data for the parent dashboard.
+//      */
+//     getDashboard(accessCode) {
+//         // Note: The backend route might expect a POST or a GET with params.
+//         // Based on your controller, it seems to check req.query and req.body.
+//         // A POST request is generally better for sending an access code.
+//         return api.post('/parent/dashboard', { accessCode });
+//     }
+// }
+//
+// // Export a singleton instance of the class.
+// export default new ParentApiService();

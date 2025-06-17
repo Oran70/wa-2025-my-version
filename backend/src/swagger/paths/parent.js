@@ -15,54 +15,10 @@ module.exports = {
                 }
             },
             responses: {
-                200: {
-                    description: 'Access code validated successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    data: {
-                                        type: 'object',
-                                        properties: {
-                                            student: { $ref: '#/components/schemas/StudentInfo' },
-                                            teachers: {
-                                                type: 'array',
-                                                items: { $ref: '#/components/schemas/TeacherInfo' }
-                                            }
-                                        }
-                                    },
-                                    message: { type: 'string', example: 'Access code valid. Please select a teacher and appointment time.' }
-                                }
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: 'Validation error',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                },
-                401: {
-                    description: 'Invalid access code',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                },
-                429: {
-                    description: 'Too many requests',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
+                200: { $ref: '#/components/responses/AccessCodeValidated' },
+                400: { $ref: '#/components/responses/BadRequest' },
+                401: { $ref: '#/components/responses/Unauthorized' },
+                429: { $ref: '#/components/responses/TooManyRequests' }
             }
         }
     },
@@ -82,32 +38,10 @@ module.exports = {
                 },
             ],
             responses: {
-                200: {
-                    description: 'Teacher availability retrieved successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    data: {
-                                        type: 'array',
-                                        items: { $ref: '#/components/schemas/AvailabilitySlot' }
-                                    },
-                                    message: { type: 'string', example: 'Found 5 available slots' }
-                                }
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: 'Validation error',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
+                201: { $ref: '#/components/responses/AppointmentCreated' },
+                400: { $ref: '#/components/responses/BadRequest' },
+                429: { $ref: '#/components/responses/TooManyRequests' },
+                500: { $ref: '#/components/responses/InternalServerError' }
             }
         }
     },
@@ -126,44 +60,10 @@ module.exports = {
                 }
             },
             responses: {
-                201: {
-                    description: 'Appointment created successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    data: {
-                                        type: 'object',
-                                        properties: {
-                                            appointmentId: { $ref: '#/components/schemas/UUID' },
-                                            parentUserId: { $ref: '#/components/schemas/UUID' },
-                                            confirmation: { $ref: '#/components/schemas/AppointmentDetails' }
-                                        }
-                                    },
-                                    message: { type: 'string', example: 'Appointment successfully scheduled!' }
-                                }
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: 'Failed to create appointment',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                },
-                429: {
-                    description: 'Too many appointment requests',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
+                201: { $ref: '#/components/responses/AppointmentCreated' },
+                400: { $ref: '#/components/responses/BadRequest' },
+                429: { $ref: '#/components/responses/TooManyRequests' },
+                500: { $ref: '#/components/responses/InternalServerError' }
             }
         }
     },
@@ -182,40 +82,7 @@ module.exports = {
                     description: 'Appointment\'s unique identifier'
                 }
             ],
-            responses: {
-                200: {
-                    description: 'Appointment confirmation retrieved successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    data: { $ref: '#/components/schemas/AppointmentDetails' },
-                                    message: { type: 'string', example: 'Appointment confirmation retrieved successfully' }
-                                }
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: 'Validation error',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                },
-                404: {
-                    description: 'Appointment not found',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
-            }
-        }
+           // TODO: Add response schema for appointment confirmation details
     },
 
     '/api/appointments/{appointmentId}/cancel': {
@@ -240,30 +107,7 @@ module.exports = {
                     }
                 }
             },
-            responses: {
-                200: {
-                    description: 'Appointment cancelled successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    message: { type: 'string', example: 'Appointment cancelled successfully' }
-                                }
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: 'Failed to cancel appointment',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
-            }
+            // TODO: Add response schema for appointment confirmation details
         }
     },
 
@@ -281,39 +125,8 @@ module.exports = {
                     description: 'Student\'s access code  to fetch dashboard data'
                 }
             ],
-            responses: {
-                200: {
-                    description: 'Dashboard data retrieved successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    data: { $ref: '#/components/schemas/DashboardData' },
-                                    message: { type: 'string', example: 'Dashboard data retrieved successfully' }
-                                }
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: 'Validation error',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                },
-                404: {
-                    description: 'Student not found',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
-            }
+            // TODO: Add response schema for appointment confirmation details
         }
+    }
     }
 };

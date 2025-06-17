@@ -13,7 +13,6 @@ const studentController = {
     },
 
     async getStudentById(req, res) {
-        // Fixed: Changed from req.params.id to req.params.studentId
         const studentId = req.params.studentId;
         try {
             const student = await StudentService.getStudentById(studentId);
@@ -37,7 +36,7 @@ const studentController = {
         }
     },
 
-    async createStudentGroup (req, res) {
+    async createStudentGroup(req, res) {
         const { students } = req.body;
         if (!Array.isArray(students) || students.length === 0) {
             return res.status(400).json({ message: 'Invalid student data' });
@@ -51,6 +50,7 @@ const studentController = {
             res.status(500).json({ message: 'Internal Server Error' });
         }
     },
+
     async updateStudent(req, res) {
         const studentId = req.params.studentId;
         try {
@@ -78,20 +78,7 @@ const studentController = {
             res.status(500).json({ message: 'Internal Server Error' });
         }
     },
-    async createStudentGroup(req, res) {
-        const { students } = req.body;
-        if (!Array.isArray(students) || students.length === 0) {
-            return res.status(400).json({ message: 'Invalid student data' });
-        }
 
-        try {
-            const createdStudents = await StudentService.createStudentGroup(students);
-            res.status(201).json(createdStudents);
-        } catch (error) {
-            logger.error('Error creating student group:', error);
-            res.status(500).json({ message: 'Internal Server Error' });
-        }
-    },
     async deleteStudentGroup(req, res) {
         const { studentIds } = req.body;
         if (!Array.isArray(studentIds) || studentIds.length === 0) {
@@ -109,5 +96,6 @@ const studentController = {
             res.status(500).json({ message: 'Internal Server Error' });
         }
     }
-}
+};
+
 module.exports = studentController;

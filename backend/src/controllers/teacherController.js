@@ -1,9 +1,10 @@
 const TeacherService = require('../services/teacherService');
+const AuthService = require('../services/AuthService'); // Add this import
 const logger = require('../utils/logger');
-const jwt = require('jsonwebtoken');
+
 
 const teacherController = {
-    // Authentication endpoint
+
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -25,17 +26,24 @@ const teacherController = {
                 });
             }
 
-            // Generate JWT token
-            const token = jwt.sign(
+            let userType = 'Teacher'; // Default to Teacher
+            if (teacher.roles.includes('Admin')) {
+                userType = 'Admin';
+            } else if (teacher.roles.includes('Mentor')) {
+                userType = 'Mentor';
+            }
+
+            const token = AuthService.generateToken(
                 {
                     userId: teacher.user_id,
                     email: teacher.email,
                     roles: teacher.roles,
                     type: 'Teacher' || 'Mentor' || 'Admin'
                 },
-                process.env.JWT_SECRET,
-                { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+                process.env.JWT_EXPIRES_IN || '30d'
             );
+            console.log('Generated token:', token);
+            console.log('JWT_SECRET from env:', process.env.JWT_SECRET);
 
             // Log successful login
             logger.info(`Teacher login successful: ${teacher.email}`);
@@ -64,7 +72,7 @@ const teacherController = {
         }
     },
 
-    // Get teacher's classes
+
     getClasses: async (req, res) => {
         try {
             const teacherId = req.user.userId;
@@ -89,7 +97,7 @@ const teacherController = {
         }
     },
 
-    // Get teacher's students (all classes)
+
     getStudents: async (req, res) => {
         try {
             const teacherId = req.user.userId;
@@ -114,7 +122,7 @@ const teacherController = {
         }
     },
 
-    // Get students by specific class
+
     getStudentsByClass: async (req, res) => {
         try {
             const teacherId = req.user.userId;
@@ -154,7 +162,7 @@ const teacherController = {
         }
     },
 
-    // Create availability slots
+
     createAvailability: async (req, res) => {
         try {
             const teacherId = req.user.userId;
@@ -216,7 +224,7 @@ const teacherController = {
         }
     },
 
-    // Delete availability by date and time
+
     deleteAvailability: async (req, res) => {
         try {
             const teacherId = req.user.userId;
@@ -255,7 +263,6 @@ const teacherController = {
             });
         }
     },
-    // Get teacher's appointments
     getTeacherAppointments: async (req, res) => {
         try {
             const teacherId = req.user.userId;
@@ -291,7 +298,6 @@ const teacherController = {
         }
     },
 
-    // Cancel appointment
     cancelAppointment: async (req, res) => {
         try {
             const teacherId = req.user.userId;
@@ -337,7 +343,6 @@ const teacherController = {
         }
     },
 
-    // Get teacher dashboard
     getDashboard: async (req, res) => {
         try {
             const teacherId = req.user.userId;

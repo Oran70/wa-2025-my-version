@@ -1,35 +1,76 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTeacherAvailability, useCreateAppointment } from "../../../hooks/useParent";
 import "./Appointment.css";
 
 export default function Appointment() {
     const location = useLocation();
     const navigate = useNavigate();
-    const code = location.state?.code ?? "";
+
+    // CORRECTED: Read the state structure as sent by YOUR UniqueCode.jsx
+    const { apiResponse } = location.state || {};
+    const { student, teachers, accessCode } = apiResponse || {};
+
+    // Find the primary mentor from the teachers list
+    const mentor = teachers?.find(t => t.is_primary_mentor);
 
     const [form, setForm] = useState({
         studentName: "",
         studentNumber: "",
         level: "",
-        mentor: "",
+        mentorName: "",
         class: "",
-        email: "",
-        phone: "",
-        date: "",
-        time: "",
+        parentName: "",
+        parentEmail: "",
+        parentPhone: "",
+        availabilityId: "",
         remarks: ""
     });
 
     const [showConfirmation, setShowConfirmation] = useState(false);
 
+    // Custom hooks for API calls
+    const { availability, loading: availabilityLoading, error: availabilityError } = useTeacherAvailability(mentor?.teacher_id);
+    const { createAppointment, loading: appointmentLoading, error: appointmentError } = useCreateAppointment();
+
+    // Populate student and mentor info once data is available
+    useEffect(() => {
+        if (student && mentor) {
+            setForm(prevForm => ({
+                ...prevForm,
+                studentName: student.student_name || "",
+                studentNumber: student.student_number || "",
+                level: student.level_name || "",
+                class: student.class_name || "",
+                mentorName: mentor.teacher_name || ""
+            }));
+        }
+    }, [student, mentor]);
+
+
     const handleChange = (e) =>
         setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Submitted:", form);
-        // TODO: call backend here to save appointment
-        setShowConfirmation(true);
+
+        const appointmentData = {
+            accessCode: accessCode,
+            teacherId: mentor.teacher_id,
+            availabilityId: form.availabilityId,
+            parentName: form.parentName,
+            parentEmail: form.parentEmail,
+            parentPhone: form.parentPhone
+        };
+
+        try {
+            const result = await createAppointment(appointmentData);
+            if (result) {
+                setShowConfirmation(true);
+            }
+        } catch (error) {
+            console.error("Failed to create appointment:", error);
+        }
     };
 
     const closeConfirmation = () => {
@@ -104,7 +145,7 @@ export default function Appointment() {
                                 <label className="form-label">Mentor</label>
                                 <input
                                     className="form-input"
-                                    value={form.mentor}
+                                    value={form.mentorName}
                                     disabled
                                 />
                             </div>
@@ -117,25 +158,37 @@ export default function Appointment() {
                                 </p>
                                 <div className="contact-info-group">
                                     <div className="info-input-wrapper">
-                                        <label htmlFor="email">E-mail:</label>
+                                        <label htmlFor="parentName">Naam Ouder/Verzorger:</label>
                                         <input
-                                            id="email"
-                                            type="email"
-                                            name="email"
+                                            id="parentName"
+                                            type="text"
+                                            name="parentName"
                                             className="form-input"
-                                            value={form.email}
+                                            value={form.parentName}
                                             onChange={handleChange}
                                             required
                                         />
                                     </div>
                                     <div className="info-input-wrapper">
-                                        <label htmlFor="phone">Telefoonnummer:</label>
+                                        <label htmlFor="parentEmail">E-mail:</label>
                                         <input
-                                            id="phone"
-                                            type="tel"
-                                            name="phone"
+                                            id="parentEmail"
+                                            type="email"
+                                            name="parentEmail"
                                             className="form-input"
-                                            value={form.phone}
+                                            value={form.parentEmail}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="info-input-wrapper">
+                                        <label htmlFor="parentPhone">Telefoonnummer:</label>
+                                        <input
+                                            id="parentPhone"
+                                            type="tel"
+                                            name="parentPhone"
+                                            className="form-input"
+                                            value={form.parentPhone}
                                             onChange={handleChange}
                                             required
                                         />
@@ -151,36 +204,24 @@ export default function Appointment() {
                                 </p>
                                 <div className="datetime-group">
                                     <div className="datetime-input-wrapper">
-                                        <label htmlFor="date">Dag:</label>
+                                        <label htmlFor="availabilityId">Tijdstip:</label>
                                         <select
-                                            id="date"
-                                            name="date"
+                                            id="availabilityId"
+                                            name="availabilityId"
                                             className="form-select"
-                                            value={form.date}
+                                            value={form.availabilityId}
                                             onChange={handleChange}
                                             required
+                                            disabled={availabilityLoading || !mentor}
                                         >
-                                            <option value="">-- Selecteer --</option>
-                                            <option value="2025-05-17">17-05-2025</option>
-                                            <option value="2025-05-18">18-05-2025</option>
-                                        </select>
-                                    </div>
-                                    <div className="datetime-input-wrapper">
-                                        <label htmlFor="time">Tijdstip:</label>
-                                        <select
-                                            id="time"
-                                            name="time"
-                                            className="form-select"
-                                            value={form.time}
-                                            onChange={handleChange}
-                                            required
-                                        >
-                                            <option value="">-- Selecteer --</option>
-                                            <option value="18:00">18:00</option>
-                                            <option value="18:30">18:30</option>
-                                            <option value="19:00">19:00</option>
-                                            <option value="19:30">19:30</option>
-                                            <option value="20:00">20:00</option>
+                                            <option value="">-- Selecteer een tijdstip --</option>
+                                            {availabilityLoading && <option>Loading...</option>}
+                                            {availabilityError && <option>Error loading times</option>}
+                                            {availability?.map(slot => (
+                                                <option key={slot.availability_id} value={slot.availability_id}>
+                                                    {new Date(slot.date).toLocaleDateString('nl-NL')} - {slot.start_time}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
@@ -205,6 +246,8 @@ export default function Appointment() {
                                 />
                             </div>
 
+                            {appointmentError && <p className="error-message">{appointmentError}</p>}
+
                             {/* Form Actions */}
                             <div className="form-actions">
                                 <button
@@ -214,8 +257,8 @@ export default function Appointment() {
                                 >
                                     Annuleer
                                 </button>
-                                <button type="submit" className="btn btn-primary submit-btn">
-                                    Plan afspraak
+                                <button type="submit" className="btn btn-primary submit-btn" disabled={appointmentLoading}>
+                                    {appointmentLoading ? 'Bezig met plannen...' : 'Plan afspraak'}
                                 </button>
                             </div>
                         </form>
@@ -223,7 +266,6 @@ export default function Appointment() {
                 </div>
             </div>
 
-            {/* Confirmation Popup */}
             {showConfirmation && (
                 <div className="confirmation-overlay">
                     <div className="confirmation-card">

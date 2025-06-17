@@ -1,40 +1,74 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, BookOpen, Calendar, Settings, BarChart3 } from 'lucide-react';
+import { Users, BookOpen, Calendar, Settings, GraduationCap } from 'lucide-react';
+import { useDashboardStats } from '../../../hooks/useAdmin'; // Import the hook
 import './AdminDashboard.css';
+
+// Added a helper method for Admin "Recent Activities component."
+const getLogDetails = (logItem) => {
+    if (!logItem.details) return null;
+    if (typeof logItem.details === 'object') return logItem.details;
+    try {
+        return JSON.parse(logItem.details);
+    } catch (error) {
+        console.error('Failed to parse log details:', error);
+        return null;
+    }
+};
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    // Use our new hook to fetch data
+    const { stats, loading, error } = useDashboardStats();
 
+    // The navigation cards remain the same
     const dashboardCards = [
         {
             title: 'Gebruikers beheren',
-            description: 'Toevoegen, wijzigen en verwijderen van mentoren, decanen en teamleiders',
+            description: 'Toevoegen, wijzigen en verwijderen van gebruikers',
             icon: <Users className="dashboard-icon" />,
             route: '/admin/users',
             color: 'primary'
         },
         {
             title: 'Klassen beheren',
-            description: 'Toevoegen, wijzigen en verwijderen van klassen en onderwijsniveaus',
+            description: 'Toevoegen, wijzigen en verwijderen van klassen',
             icon: <BookOpen className="dashboard-icon" />,
             route: '/admin/classes',
             color: 'secondary'
         },
         {
+            title: 'Studenten beheren',
+            description: 'Bekijk en beheer alle studenten in het systeem',
+            icon: <GraduationCap className="dashboard-icon" />,
+            route: '/admin/students',
+            color: 'quaternary' // A new color for distinction
+        },
+        {
             title: 'Afspraken overzicht',
-            description: 'Bekijk alle afspraken en beheer geplande gesprekken',
+            description: 'Bekijk alle geplande en afgelopen afspraken',
             icon: <Calendar className="dashboard-icon" />,
             route: '/admin/appointments',
             color: 'tertiary'
         }
     ];
 
+    // Display a loading message while data is being fetched
+    if (loading) {
+        return <div className="admin-container"><h1 className="admin-title">Loading Dashboard...</h1></div>;
+    }
+
+    // Display an error message if fetching fails
+    if (error) {
+        return <div className="admin-container"><h1 className="admin-title" style={{color: 'red'}}>Error: {error}</h1></div>;
+    }
+
+    // Once loading is complete, use the 'stats' object to build the data
     const quickStats = [
-        { label: 'Gebruikers', value: '24', change: '+2 deze week' },
-        { label: 'Klassen', value: '18', change: 'Geen wijzigingen' },
-        { label: 'Afspraken vandaag', value: '12', change: '+3 vergeleken met gisteren' },
-        { label: 'Afspraken deze week', value: '87', change: '+15 vergeleken met vorige week' }
+        { label: 'Actieve Gebruikers', value: stats?.totalUsers ?? 'N/A' },
+        { label: 'Totaal Klassen', value: stats?.totalClasses ?? 'N/A' },
+        { label: 'Afspraken Vandaag', value: stats?.appointmentsToday ?? 'N/A' },
+        { label: 'Totaal Afspraken', value: stats?.totalAppointments ?? 'N/A' }
     ];
 
     return (
@@ -56,7 +90,7 @@ const AdminDashboard = () => {
             </div>
 
             <div className="admin-content">
-                {/* Quick Stats */}
+                {/* Quick Stats Section - Now uses live data */}
                 <div className="stats-section">
                     <h2 className="section-title">Statistieken</h2>
                     <div className="stats-grid">
@@ -64,13 +98,12 @@ const AdminDashboard = () => {
                             <div key={index} className="stat-card">
                                 <div className="stat-value">{stat.value}</div>
                                 <div className="stat-label">{stat.label}</div>
-                                <div className="stat-change">{stat.change}</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Dashboard Cards */}
+                {/* Dashboard Cards Section - No changes needed here */}
                 <div className="dashboard-section">
                     <h2 className="section-title">Beheren</h2>
                     <div className="dashboard-grid">
@@ -87,45 +120,36 @@ const AdminDashboard = () => {
                                     <h3 className="dashboard-card-title">{card.title}</h3>
                                 </div>
                                 <p className="dashboard-card-description">{card.description}</p>
-                                <div className="dashboard-card-arrow">
-                                    →
-                                </div>
+                                <div className="dashboard-card-arrow">→</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Recent Activity */}
+                {/* Recent Activity Section - Now uses live data */}
                 <div className="activity-section">
                     <h2 className="section-title">Recente activiteit</h2>
                     <div className="activity-list">
-                        <div className="activity-item">
-                            <div className="activity-icon activity-icon-user">
-                                <Users size={16} />
-                            </div>
-                            <div className="activity-content">
-                                <span className="activity-text">Nieuwe gebruiker toegevoegd: J. de Vries (JDV)</span>
-                                <span className="activity-time">2 uur geleden</span>
-                            </div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-icon activity-icon-appointment">
-                                <Calendar size={16} />
-                            </div>
-                            <div className="activity-content">
-                                <span className="activity-text">15 nieuwe afspraken gepland voor morgen</span>
-                                <span className="activity-time">4 uur geleden</span>
-                            </div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-icon activity-icon-class">
-                                <BookOpen size={16} />
-                            </div>
-                            <div className="activity-content">
-                                <span className="activity-text">Klas 4VWO3 toegevoegd aan systeem</span>
-                                <span className="activity-time">1 dag geleden</span>
-                            </div>
-                        </div>
+                        {stats && stats.recentActivity.length > 0 ? (
+                            stats.recentActivity.map((item) => {
+                                const details = getLogDetails(item);
+                                const actor = item.user?.name || (details?.createdBy === 'Parent' ? 'Parent' : 'System');
+
+                                return (
+                                    <div key={item.log_id} className="activity-item">
+                                        <div className="activity-icon activity-icon-user">
+                                            <Users size={16} />
+                                        </div>
+                                        <div className="activity-content">
+                                            <span className="activity-text">{item.action} by {actor}</span>
+                                            <span className="activity-time">{new Date(item.created_at).toLocaleString('nl-NL')}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p>Geen recente activiteit gevonden.</p>
+                        )}
                     </div>
                 </div>
             </div>

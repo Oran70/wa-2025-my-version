@@ -189,6 +189,7 @@
 
 .delete-button {
     background-color: #ff4d4f;
+    margin-left: 2.5rem;
     color: white;
     border: none;
     padding: 0.5rem 1rem;

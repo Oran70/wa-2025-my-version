@@ -122,7 +122,7 @@ const userController = {
     updateUser: async (req, res, next) => {
         try {
             const { userId } = req.params;
-            const { name, email, password, phone, abbreviation, notes, is_active, roles } = req.body;
+            const { name, email, password, phone, abbreviation, notes, is_active, roles, classId } = req.body;
 
             if (!userId) {
                 return res.status(400).json({
@@ -134,12 +134,13 @@ const userController = {
             const updateData = {};
             if (name !== undefined) updateData.name = name;
             if (email !== undefined) updateData.email = email;
-            if (password !== undefined) updateData.password = password;
+            if (password) updateData.password = password;
             if (phone !== undefined) updateData.phone = phone;
             if (abbreviation !== undefined) updateData.abbreviation = abbreviation;
             if (notes !== undefined) updateData.notes = notes;
             if (is_active !== undefined) updateData.is_active = is_active;
             if (roles !== undefined) updateData.roles = roles;
+            if (classId !== undefined) updateData.classId = classId;
 
             const updatedUser = await UserService.updateUser(userId, updateData);
 

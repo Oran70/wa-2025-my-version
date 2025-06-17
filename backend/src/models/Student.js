@@ -1,5 +1,4 @@
 const { DataTypes } = require('sequelize');
-const generateUniqueAccessCode = require("../hooks/GenerateUniqueAccessCodeHook");
 
 module.exports = (sequelize) => {
     const Student = sequelize.define('Student', {
@@ -49,13 +48,6 @@ module.exports = (sequelize) => {
             { fields: ['class_id'] },
             { fields: ['level_id'] }
         ],
-        hooks: {
-            beforeCreate: async (student) => {
-                if (!student.parent_access_code) {
-                    student.parent_access_code = await generateUniqueAccessCode(Student);
-                }
-            }
-        }
     });
     Student.associate = (models) => {
         Student.belongsTo(models.Level, { foreignKey: 'level_id', as: 'level' });

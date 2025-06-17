@@ -30,88 +30,10 @@ module.exports = {
                 }
             },
             responses: {
-                200: {
-                    description: 'Login successful',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    message: { type: 'string', example: 'Login successful' },
-                                    data: {
-                                        type: 'object',
-                                        properties: {
-                                            user: { $ref: '#/components/schemas/TeacherUser' },
-                                            token: {
-                                                type: 'string',
-                                                description: 'JWT token for authentication',
-                                                example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: 'Bad Request - missing email or password',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                },
-                401: {
-                    description: 'Unauthorized - invalid credentials',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                },
-                500: {
-                    description: 'Internal server error',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
-            }
-        }
-    },
-
-    '/api/teacher/logout': {
-        post: {
-            tags: ['Teacher'],
-            summary: 'Teacher logout',
-            description: 'Logs out teacher (mainly for logging purposes)',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {
-                    description: 'Logout successful',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    message: { type: 'string', example: 'Logout successful' }
-                                }
-                            }
-                        }
-                    }
-                },
-                401: {
-                    description: 'Unauthorized - invalid or missing token',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
-                }
+                200: { $ref: '#/components/responses/Success' },
+                400: { $ref: '#/components/responses/BadRequest' },
+                404: { $ref: '#/components/responses/NotFound' },
+                500: { $ref: '#/components/responses/InternalServerError' }
             }
         }
     },
@@ -123,23 +45,9 @@ module.exports = {
             description: 'Retrieves comprehensive dashboard data for the authenticated teacher',
             security: [{ bearerAuth: [] }],
             responses: {
-                200: {
-                    description: 'Dashboard data retrieved successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    message: { type: 'string', example: 'Dashboard data retrieved successfully' },
-                                    data: { $ref: '#/components/schemas/TeacherDashboard' }
-                                }
-                            }
-                        }
-                    }
-                },
-                401: { $ref: '#/components/responses/Unauthorized' },
-                403: { $ref: '#/components/responses/Forbidden' },
+                200: { $ref: '#/components/responses/Success' },
+                400: { $ref: '#/components/responses/BadRequest' },
+                404: { $ref: '#/components/responses/NotFound' },
                 500: { $ref: '#/components/responses/InternalServerError' }
             }
         }
@@ -152,32 +60,9 @@ module.exports = {
             description: 'Retrieves all classes that the authenticated teacher teaches',
             security: [{ bearerAuth: [] }],
             responses: {
-                200: {
-                    description: 'Classes retrieved successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    message: { type: 'string', example: 'Classes retrieved successfully' },
-                                    data: {
-                                        type: 'object',
-                                        properties: {
-                                            classes: {
-                                                type: 'array',
-                                                items: { $ref: '#/components/schemas/TeacherClass' }
-                                            },
-                                            total: { type: 'integer', example: 3 }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                401: { $ref: '#/components/responses/Unauthorized' },
-                403: { $ref: '#/components/responses/Forbidden' },
+                200: { $ref: '#/components/responses/Success' },
+                400: { $ref: '#/components/responses/BadRequest' },
+                404: { $ref: '#/components/responses/NotFound' },
                 500: { $ref: '#/components/responses/InternalServerError' }
             }
         }
@@ -190,32 +75,11 @@ module.exports = {
             description: 'Retrieves all students from all classes that the authenticated teacher teaches',
             security: [{ bearerAuth: [] }],
             responses: {
-                200: {
-                    description: 'Students retrieved successfully',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    success: { type: 'boolean', example: true },
-                                    message: { type: 'string', example: 'Students retrieved successfully' },
-                                    data: {
-                                        type: 'object',
-                                        properties: {
-                                            students: {
-                                                type: 'array',
-                                                items: { $ref: '#/components/schemas/TeacherStudent' }
-                                            },
-                                            total: { type: 'integer', example: 25 }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                401: { $ref: '#/components/responses/Unauthorized' },
-                403: { $ref: '#/components/responses/Forbidden' },
+                200: { $ref: '#/components/responses/Success' },
+                400: { $ref: '#/components/responses/BadRequest' },
+                // TODO: Add 403 response for forbidden access
+                // 403: { $ref: '#/components/responses/Forbidden' },
+                404: { $ref: '#/components/responses/NotFound' },
                 500: { $ref: '#/components/responses/InternalServerError' }
             }
         }
@@ -267,12 +131,7 @@ module.exports = {
                 },
                 400: { $ref: '#/components/responses/BadRequest' },
                 403: {
-                    description: 'Forbidden - teacher does not teach this class',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
+                    description: 'Forbidden - teacher does not teach this class'
                 },
                 404: { $ref: '#/components/responses/NotFound' },
                 401: { $ref: '#/components/responses/Unauthorized' },

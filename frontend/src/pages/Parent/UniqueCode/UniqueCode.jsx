@@ -1,46 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+// 1. Import the new custom hook from the file in the Canvas
+import { useAccessCodeValidation } from "../../../hooks/useParent";
 import "./UniqueCode.css";
 
 export default function UniqueCode() {
     const [code, setCode] = useState("");
-    const [showError, setShowError] = useState(false);
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    // 2. Use the hook to get all the state and functions you need.
+    // This replaces multiple useState calls for loading, error, etc.
+    const { loading, error, validateAccessCode, reset } = useAccessCodeValidation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-
         try {
-            const response = await fetch(`/api/validate-code/${code}`);
-            const result = await response.json();
+            // 3. Call the validation function from the hook.
+            const result = await validateAccessCode(code);
 
-            if (result.valid) {
-                navigate("/afspraak-plannen", { state: { code } });
-            } else {
-                setShowError(true);
+            // If the call is successful, navigate to the next page.
+            // The hook handles setting all the data.
+            if (result.success) {
+                navigate("/afspraak-plannen", { state: { apiResponse: result.data } });
             }
         } catch (err) {
-            setShowError(true);
-        } finally {
-            setLoading(false);
+            // The hook's error state is already set, so we just log the error here.
+            console.error("Validation failed:", err.message);
         }
     };
 
-
     const closeModal = () => {
-        setShowError(false);
+        reset(); // Use the reset function from the hook to clear the error.
         setCode("");
     };
 
+    // Effect to close the modal when the user presses the Escape key.
     useEffect(() => {
         const handleEsc = (e) => {
-            if (e.key === "Escape") closeModal();
+            if (e.key === "Escape" && error) {
+                closeModal();
+            }
         };
         window.addEventListener("keydown", handleEsc);
         return () => window.removeEventListener("keydown", handleEsc);
-    }, []);
+    }, [error, closeModal]); // Dependency array ensures this runs only when 'error' or 'closeModal' changes.
 
     return (
         <div className="unique-code-page">
@@ -58,17 +61,19 @@ export default function UniqueCode() {
                         required
                         disabled={loading}
                     />
+                    {/* The button is disabled based on the 'loading' state from the hook */}
                     <button type="submit" disabled={loading}>
                         {loading ? "Een moment geduld..." : "Ga verder"}
                     </button>
                 </form>
             </div>
 
-            {showError && (
+            {/* The error modal is displayed based on the 'error' state from the hook */}
+            {error && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h3>Unieke code niet herkend</h3>
-                        <p>Er is iets misgegaan met het invoeren van uw unieke code</p>
+                        <h3>Code niet herkend</h3>
+                        <p>{error}</p>
                         <div className="modal-buttons">
                             <button onClick={() => navigate("/contact")}>Neem contact op</button>
                             <button onClick={closeModal}>Probeer opnieuw</button>

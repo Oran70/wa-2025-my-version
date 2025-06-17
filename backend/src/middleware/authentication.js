@@ -162,7 +162,8 @@ module.exports = {
 
             const { roles, userId } = req.user || {};
 
-            if (!roles || !Array.isArray(roles) || !roles.includes('Admin')) {
+            // From Ensar: Changed value from 'Admin' to 'Administrator to match role in the database'
+            if (!roles || !Array.isArray(roles) || !roles.includes('Administrator')) {
                 logger.warn(`Unauthorized admin access attempt by user ${userId || 'unknown'}`);
                 return res.status(403).json({
                     success: false,

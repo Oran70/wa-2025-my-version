@@ -31,6 +31,17 @@ class UserService {
                         as: 'roles',
                         attributes: ['role_id', 'name', 'description'],
                         through: {attributes: []}
+                    },
+                    {
+                        model: db.Class,
+                        as: 'classes',
+                        attributes: ['class_id', 'class_name'],
+                        through: { attributes: [] },
+                        include: [{
+                            model: db.Level,
+                            as: 'level',
+                            attributes: ['name']
+                        }]
                     }
                 ],
                 attributes: {exclude: ['password']}, // Never return passwords
@@ -92,7 +103,7 @@ class UserService {
     async createUser(userData) {
         const transaction = await db.sequelize.transaction();
         try {
-            const {name, email, password, role, abbreviation, notes, roles = []} = userData;
+            const {name, email, password, role, abbreviation, notes, roles = [], classId} = userData;
             // Check if email already exists
             const existingUser = await db.User.findOne({where: {email}});
             if (existingUser) {
@@ -160,6 +171,16 @@ class UserService {
                 console.log('No roles to assign'); // Debug log
             }
 
+            if (classId) {
+                await db.TeacherClass.create({
+                    user_id: newUser.user_id,
+                    class_id: classId,
+                    school_year: '2024-2025',
+                    is_primary_mentor: false
+                }, { transaction });
+                console.log(`Assigned new user ${newUser.user_id} to class ${classId}`);
+            }
+
             // Commit the transaction
             await transaction.commit();
 
@@ -195,7 +216,7 @@ class UserService {
         const transaction = await db.sequelize.transaction();
 
         try {
-            const {name, email, password, phone, abbreviation, notes, roles, is_active} = updateData;
+            const {name, email, password, phone, abbreviation, notes, roles, classId, is_active} = updateData;
 
             // Check if user exists
             const user = await db.User.findByPk(userId);
@@ -224,31 +245,25 @@ class UserService {
             // Update user
             await user.update(updateFields, {transaction});
 
-            // Update roles if provided
-            if (roles !== undefined) {
-                // Remove existing roles
-                await db.UserRole.destroy({
-                    where: {user_id: userId},
+            if (roles && Array.isArray(roles)) {
+                const roleInstances = await db.Role.findAll({
+                    where: { name: { [db.Sequelize.Op.in]: roles } },
                     transaction
                 });
+                // setRoles is a smart Sequelize function that automatically
+                // adds and removes roles as needed in the user_role table.
+                await user.setRoles(roleInstances, { transaction });
+            }
 
-                // Add new roles
-                if (roles.length > 0) {
-                    const validRoles = await db.Role.findAll({
-                        where: {role_id: {[Op.in]: roles}}
-                    });
-
-                    if (validRoles.length !== roles.length) {
-                        throw new Error('One or more invalid roles provided');
-                    }
-
-                    const userRoles = roles.map(roleId => ({
-                        user_id: userId,
-                        role_id: roleId
-                    }));
-
-                    await db.UserRole.bulkCreate(userRoles, {transaction});
-                }
+            if (classId) {
+                // First, remove any existing class assignment for this user
+                await db.TeacherClass.destroy({ where: { user_id: userId }, transaction });
+                // Then, create the new assignment
+                await db.TeacherClass.create({
+                    user_id: userId,
+                    class_id: classId,
+                    school_year: '2024-2025'
+                }, { transaction });
             }
 
             await transaction.commit();
@@ -292,6 +307,13 @@ class UserService {
             if (!user) {
                 throw new Error('User not found');
             }
+
+            // I added this block to prevent FK issues.
+            // It will delete the user's class assignments from the teacher_class table
+            await db.TeacherClass.destroy({
+                where: { user_id: userId },
+                transaction
+            });
 
             // Delete user-role associations first
             await db.UserRole.destroy({

@@ -3,6 +3,7 @@ const db = require('../models');
 const logger = require('../utils/logger');
 const Appointment = db.Appointment;
 class TeacherService {
+
     // Validate teacher credentials for login
     async validateTeacherCredentials(email, password) {
         try {
@@ -20,6 +21,7 @@ class TeacherService {
             if (!user || !user.password) {
                 return null;
             }
+            // console.log(user.toJSON()); // Uncomment this for very detailed user info
 
             const isValidPassword = await user.validatePassword(password);
             if (!isValidPassword) {
@@ -27,8 +29,10 @@ class TeacherService {
             }
 
             // Check if user has teacher role
-            const isTeacher = user.roles.some(role =>
-                ['Teacher', 'Mentor', 'Admin'].includes(role.name)
+            const userRoles = user.roles.map(role => role.name);
+
+            const isTeacher = userRoles.some(roleName =>
+                ['Teacher', 'Mentor', 'Admin', 'Administrator'].includes(roleName)
             );
 
             if (!isTeacher) {
@@ -40,7 +44,7 @@ class TeacherService {
                 email: user.email,
                 name: user.name,
                 abbreviation: user.abbreviation,
-                roles: user.roles.map(role => role.name)
+                roles: userRoles
             };
         } catch (error) {
             logger.error(`Error validating teacher credentials: ${error.message}`, { error });

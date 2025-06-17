@@ -3,6 +3,10 @@ const userRoutes = require('./user');
 const parentRoutes = require('./parent');
 const studentRoutes = require('./student');
 const teacherRoutes = require('./teacher');
+const adminRoutes = require('./admin');
+const classRoutes = require('./class');
+const roleRoutes = require('./role');
+const levelRoutes = require('./level');
 
 const { apiLimiter } = require('../middleware/rateLimiter');
 
@@ -13,8 +17,12 @@ router.use('/api',apiLimiter); // Apply rate limiting to all API routes
 router.use('/', parentRoutes);
 
 router.use('/users', userRoutes);
-router.use('/student', studentRoutes);
+router.use('/students', studentRoutes);
 router.use('/teacher', teacherRoutes);
+router.use('/admin', adminRoutes);
+router.use('/classes', classRoutes);
+router.use('/roles', roleRoutes);
+router.use('/levels', levelRoutes);
 
 // API version and info endpoint
 router.get('/', (req, res) => {

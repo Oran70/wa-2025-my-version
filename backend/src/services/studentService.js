@@ -5,6 +5,36 @@ const logger = require('../utils/logger');
 const Student = db.Student;
 const Class = db.Class;
 const Level = db.Level;
+
+
+
+
+/**
+ * Generate a unique parent access code
+ * @param {Array} existingCodes - Set of existing codes to avoid duplicates
+ * @returns {string} - Unique 10-character access code
+ */
+function generateAccessCode(existingCodes = new Set()) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let attempts = 0;
+    const maxAttempts = 100;
+
+    while (attempts < maxAttempts) {
+        let code = '';
+        for (let i = 0; i < 10; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        if (!existingCodes.has(code)) {
+            existingCodes.add(code);
+            return code;
+        }
+        attempts++;
+    }
+
+    throw new Error('Unable to generate unique access code after maximum attempts');
+}
+
 /**
  * Service to handle student-related operations.
  */
@@ -76,8 +106,42 @@ class StudentService {
      */
     async createStudent(studentData) {
         try {
-            const newStudent = await Student.create(studentData);
-            return newStudent;
+            // Validate required fields
+            const { name, student_number, class_id, level_id } = studentData;
+
+            if (!name || !student_number || !class_id || !level_id) {
+                throw new Error('Missing required fields: name, student_number, class_id, level_id');
+            }
+            const existingStudents = await Student.findAll({
+                attributes: ['parent_access_code']
+            });
+            const existingCodes = new Set(existingStudents.map(s => s.parent_access_code));
+
+            const accessCode = generateAccessCode(existingCodes);
+
+            const newStudent = await Student.create({
+                name,
+                student_number,
+                class_id,
+                level_id,
+                parent_access_code: accessCode
+            });
+
+            // Return student with related data
+            return await Student.findByPk(newStudent.student_id, {
+                include: [
+                    {
+                        model: Class,
+                        as: 'class',
+                        include: [
+                            {
+                                model: Level,
+                                as: 'level'
+                            }
+                        ]
+                    }
+                ]
+            });
         } catch (error) {
             logger.error('Error creating student:', error);
             throw error;
@@ -126,18 +190,112 @@ class StudentService {
     }
 
     /**
-     * Search for students by name or email.
-     * @param {string} query - The search query (class or teacher).
-     * @returns {Promise<Array>} List of students matching the search criteria.
+     Create a group of students in a class.
+     * @param {string} classId - The ID of the class to add students to.
+     * @param {Array} studentData - Array of student objects to create.
+     * @returns {Promise<Array>} List of created student objects.
      */
-    async searchStudents(query) {
+    /**
+     * Create a group of students.
+     * @param {Array} studentData - Array of student objects to create.
+     * @returns {Promise<Array>} List of created student objects.
+     */
+    async createStudentGroup(studentData) {
+        const transaction = await Student.sequelize.transaction();
+
         try {
-            const students = await Student.findAll({
+            // Validate all students first
+            const validatedStudents = [];
+
+            for (const data of studentData) {
+                const { name, student_number, class_id, level_id } = data;
+
+                if (!name || !student_number || !class_id || !level_id) {
+                    throw new Error(`Missing required fields for student: ${JSON.stringify(data)}`);
+                }
+
+                validatedStudents.push({
+                    name,
+                    student_number,
+                    class_id,
+                    level_id
+                });
+            }
+
+            // Check for duplicate student numbers in the batch
+            const studentNumbers = validatedStudents.map(s => s.student_number);
+            const duplicates = studentNumbers.filter((num, index) => studentNumbers.indexOf(num) !== index);
+
+            if (duplicates.length > 0) {
+                throw new Error(`Duplicate student numbers in batch: ${duplicates.join(', ')}`);
+            }
+
+            // Check if any student numbers already exist in database
+            const existingStudents = await Student.findAll({
                 where: {
-                    [Op.or]: [
-                        {name: {[Op.iLike]: `%${ query }%`}},
-                        {email: {[Op.iLike]: `%${ query }%`}}
-                    ]
+                    student_number: studentNumbers
+                },
+                attributes: ['student_number'],
+                transaction
+            });
+
+            if (existingStudents.length > 0) {
+                const existingNumbers = existingStudents.map(s => s.student_number);
+                throw new Error(`Students with these numbers already exist: ${existingNumbers.join(', ')}`);
+            }
+
+            // PRE-GENERATE unique access codes for all students
+            const existingCodes = new Set();
+
+            // Get all existing access codes from database
+            const existing = await Student.findAll({
+                attributes: ['parent_access_code'],
+                transaction
+            });
+            existing.forEach(s => existingCodes.add(s.parent_access_code));
+
+            // Generate unique codes for each student BEFORE bulk creation
+            for (const student of validatedStudents) {
+                let isUnique = false;
+                let attempts = 0;
+                const maxAttempts = 100;
+
+                while (!isUnique && attempts < maxAttempts) {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    let code = '';
+                    for (let i = 0; i < 10; i++) {
+                        code += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+
+                    if (!existingCodes.has(code)) {
+                        student.parent_access_code = code;
+                        existingCodes.add(code); // Add to local set to avoid duplicates in this batch
+                        isUnique = true;
+                    }
+
+                    attempts++;
+                }
+
+                if (!isUnique) {
+                    throw new Error(`Unable to generate unique parent access code for student ${student.name} after maximum attempts`);
+                }
+            }
+
+            // Now all students have unique access codes, create them
+            const createdStudents = await Student.bulkCreate(validatedStudents, {
+                transaction,
+                returning: true
+            });
+
+            await transaction.commit();
+
+            // Return students with related data
+            const studentIds = createdStudents.map(s => s.student_id);
+            return await Student.findAll({
+                where: {
+                    student_id: {
+                        [Op.in]: studentIds
+                    }
                 },
                 include: [
                     {
@@ -152,32 +310,13 @@ class StudentService {
                     }
                 ]
             });
-            return students;
+
         } catch (error) {
-            logger.error('Error searching students:', error);
+            await transaction.rollback();
+            logger.error('Error creating student group:', error);
             throw error;
         }
     }
-
-    /**
-     Create a group of students in a class.
-     * @param {string} classId - The ID of the class to add students to.
-     * @param {Array} studentData - Array of student objects to create.
-     * @returns {Promise<Array>} List of created student objects.
-     */
-    async createStudentGroup(classId, studentData) {
-        try {
-            const students = await Student.bulkCreate(
-                studentData.map(data => ({...data, class_id: classId})),
-                {returning: true}
-            );
-            return students;
-        } catch (error) {
-            logger.error(`Error creating student group for class ${ classId }:`, error);
-            throw error;
-        }
-    }
-
     /**
      Delete a group of students by their IDs.
      * @param {Array<string>} studentIds - Array of student IDs to delete.

@@ -212,7 +212,8 @@ class ParentService {
                     parent_name: parentName,
                     parent_email: parentEmail,
                     parent_access_code: accessCode,
-                    teacher_id: teacherId
+                    teacher_id: teacherId,
+                    createdBy: 'Parent'
                 }
             }, {transaction});
 

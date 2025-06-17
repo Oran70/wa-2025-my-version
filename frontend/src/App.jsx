@@ -19,7 +19,7 @@ import AdminDashboard from './pages/Admin/AdminDashboard/AdminDashboard.jsx'
 import UserManagement from './pages/Admin/UserManagement/UserManagement.jsx'
 import ClassManagement from './pages/Admin/ClassManagement/ClassManagement.jsx'
 import AppointmentManagement from './pages/Admin/AppointmentManagement/AppointmentManagement.jsx'
-
+import StudentManagement from './pages/Admin/StudentManagement/StudentManagement.jsx';
 
 
 // import Auth from './pages/Auth/Auth';
@@ -87,6 +87,7 @@ function AppContent() {
                         <Route path="/admin/users" element={<UserManagement />} />
                         <Route path="/admin/classes" element={<ClassManagement />} />
                         <Route path="/admin/appointments" element={<AppointmentManagement />} />
+                        <Route path="/admin/students" element={<StudentManagement />} />
 
 
                         {/*/!* Auth Routes - Redirect if already logged in *!/*/}

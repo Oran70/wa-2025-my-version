@@ -119,7 +119,7 @@ const Home = () => {
                     <div className="button-row">
                         <button
                             className="btn btn-primary"
-                            onClick={() => navigate("/afspraak")}
+                            onClick={() => navigate("/code")}
                         >
                             Ouder
                         </button>

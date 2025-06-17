@@ -1,14 +1,19 @@
 const express = require('express');
 const studentController = require('../controllers/studentController');
 
-
 const router = express.Router();
-// TODO: This paths should only be accessible by the admin user
-router.get('/',studentController.getAllStudents);
-router.get('/students/:studentId', studentController.getStudentById);
+
+// Base routes (already /api/students)
+router.get('/', studentController.getAllStudents);
 router.post('/', studentController.createStudent);
+router.delete('/', studentController.deleteStudentGroup);
+
+// Individual student routes
+router.get('/:studentId', studentController.getStudentById);
 router.put('/:studentId', studentController.updateStudent);
 router.delete('/:studentId', studentController.deleteStudent);
-router.delete('/', studentController.deleteStudentGroup);
+
+// Bulk operations
+router.post('/bulk', studentController.createStudentGroup);
 
 module.exports = router;

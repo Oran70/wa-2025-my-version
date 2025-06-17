@@ -3,7 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
 // Import core dependencies
 const logger = require('./utils/logger');
@@ -42,7 +42,7 @@ class Server {
 
         // CORS configuration
         this.app.use(cors({
-            origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+            origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization']
