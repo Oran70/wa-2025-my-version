@@ -62,51 +62,49 @@ jobs:
         
         echo "Deployment package prepared successfully"
 
-    # Create web.config file
+    # Create web.config file using echo commands
     - name: Create web.config
       run: |
-        cat > deploy/web.config << 'EOF'
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <system.webServer>
-    <handlers>
-      <add name="iisnode" path="src/server.js" verb="*" modules="iisnode" />
-    </handlers>
-    <rewrite>
-      <rules>
-        <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">
-          <match url="^src/server.js\/debug[\/]?" />
-        </rule>
-        <rule name="API Routes" stopProcessing="true">
-          <match url="^api/(.*)" />
-          <action type="Rewrite" url="src/server.js" />
-        </rule>
-        <rule name="Static Files" stopProcessing="true">
-          <conditions>
-            <add input="{REQUEST_FILENAME}" matchType="IsFile" />
-          </conditions>
-          <action type="None" />
-        </rule>
-        <rule name="Frontend Routes" stopProcessing="true">
-          <conditions>
-            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True" />
-            <add input="{REQUEST_URI}" pattern="^/api/" negate="True" />
-          </conditions>
-          <action type="Rewrite" url="/frontend/index.html" />
-        </rule>
-      </rules>
-    </rewrite>
-    <security>
-      <requestFiltering>
-        <hiddenSegments>
-          <remove segment="bin"/>
-        </hiddenSegments>
-      </requestFiltering>
-    </security>
-    <httpErrors existingResponse="PassThrough" />
-  </system.webServer>
-</configuration>
-EOF
+        echo '<?xml version="1.0" encoding="utf-8"?>' > deploy/web.config
+        echo '<configuration>' >> deploy/web.config
+        echo '  <system.webServer>' >> deploy/web.config
+        echo '    <handlers>' >> deploy/web.config
+        echo '      <add name="iisnode" path="src/server.js" verb="*" modules="iisnode" />' >> deploy/web.config
+        echo '    </handlers>' >> deploy/web.config
+        echo '    <rewrite>' >> deploy/web.config
+        echo '      <rules>' >> deploy/web.config
+        echo '        <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">' >> deploy/web.config
+        echo '          <match url="^src/server.js\/debug[\/]?" />' >> deploy/web.config
+        echo '        </rule>' >> deploy/web.config
+        echo '        <rule name="API Routes" stopProcessing="true">' >> deploy/web.config
+        echo '          <match url="^api/(.*)" />' >> deploy/web.config
+        echo '          <action type="Rewrite" url="src/server.js" />' >> deploy/web.config
+        echo '        </rule>' >> deploy/web.config
+        echo '        <rule name="Static Files" stopProcessing="true">' >> deploy/web.config
+        echo '          <conditions>' >> deploy/web.config
+        echo '            <add input="{REQUEST_FILENAME}" matchType="IsFile" />' >> deploy/web.config
+        echo '          </conditions>' >> deploy/web.config
+        echo '          <action type="None" />' >> deploy/web.config
+        echo '        </rule>' >> deploy/web.config
+        echo '        <rule name="Frontend Routes" stopProcessing="true">' >> deploy/web.config
+        echo '          <conditions>' >> deploy/web.config
+        echo '            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True" />' >> deploy/web.config
+        echo '            <add input="{REQUEST_URI}" pattern="^/api/" negate="True" />' >> deploy/web.config
+        echo '          </conditions>' >> deploy/web.config
+        echo '          <action type="Rewrite" url="/frontend/index.html" />' >> deploy/web.config
+        echo '        </rule>' >> deploy/web.config
+        echo '      </rules>' >> deploy/web.config
+        echo '    </rewrite>' >> deploy/web.config
+        echo '    <security>' >> deploy/web.config
+        echo '      <requestFiltering>' >> deploy/web.config
+        echo '        <hiddenSegments>' >> deploy/web.config
+        echo '          <remove segment="bin"/>' >> deploy/web.config
+        echo '        </hiddenSegments>' >> deploy/web.config
+        echo '      </requestFiltering>' >> deploy/web.config
+        echo '    </security>' >> deploy/web.config
+        echo '    <httpErrors existingResponse="PassThrough" />' >> deploy/web.config
+        echo '  </system.webServer>' >> deploy/web.config
+        echo '</configuration>' >> deploy/web.config
 
     # Create startup command file
     - name: Create startup command
