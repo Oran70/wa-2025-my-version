@@ -60,8 +60,11 @@ jobs:
         mkdir -p deploy/public/frontend
         cp -r frontend/dist/* deploy/public/frontend/
         
-        # Create web.config for Azure App Service with routing
-        echo "Creating web.config for Azure App Service..."
+        echo "Deployment package prepared successfully"
+
+    # Create web.config file
+    - name: Create web.config
+      run: |
         cat > deploy/web.config << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
@@ -104,12 +107,10 @@ jobs:
   </system.webServer>
 </configuration>
 EOF
-        
-        # Create startup command file
-        echo "Creating startup command..."
-        echo 'node src/server.js' > deploy/startup.txt
-        
-        echo "Deployment package prepared successfully"
+
+    # Create startup command file
+    - name: Create startup command
+      run: echo 'node src/server.js' > deploy/startup.txt
 
     # Create deployment package
     - name: Create deployment package
