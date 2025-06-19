@@ -15,40 +15,24 @@ import Appointment from './pages/Parent/Appointment/Appointment';
 import TeacherAvailability from './pages/Teacher/TeacherAvailability/TeacherAvailability.jsx';
 import TeacherDashboard from './pages/Teacher/TeacherDashboard/TeacherDashboard.jsx';
 import TeacherOverview from './pages/Teacher/TeacherOverview/TeacherOverview.jsx';
-import AdminDashboard from './pages/Admin/AdminDashboard/AdminDashboard.jsx'
-import UserManagement from './pages/Admin/UserManagement/UserManagement.jsx'
-import ClassManagement from './pages/Admin/ClassManagement/ClassManagement.jsx'
-import AppointmentManagement from './pages/Admin/AppointmentManagement/AppointmentManagement.jsx'
+import AdminDashboard from './pages/Admin/AdminDashboard/AdminDashboard.jsx';
+import UserManagement from './pages/Admin/UserManagement/UserManagement.jsx';
+import ClassManagement from './pages/Admin/ClassManagement/ClassManagement.jsx';
+import AppointmentManagement from './pages/Admin/AppointmentManagement/AppointmentManagement.jsx';
 import StudentManagement from './pages/Admin/StudentManagement/StudentManagement.jsx';
 
 
-// import Auth from './pages/Auth/Auth';
-// import Register from './pages/Auth/Register';
-// import Dashboard from './pages/Dashboard';
-// import NotFound from './pages/NotFound';
 
-// Context
-// import { AuthProvider, useAuth } from './context/AuthContext';
 
 // CSS
 import './index.css';
-// import Auth from "./pages/Auth/Auth.jsx";
+import NotFound from './pages/NotFound.jsx';
+import Team from './pages/Contact/Team.jsx';
 
 
-// TODO: Implement Protected Route Component
-// const ProtectedRoute = ({ children }) => {
-//     const { isAuthenticated, isLoading } = useAuth();
-//
-//     if (isLoading) {
-//         return <div className="loading-container">Loading...</div>;
-//     }
-//
-//     return isAuthenticated ? children : <Navigate to="/login" />;
-// };
 
 function AppContent() {
-    // TODO: Uncomment when AuthContext is implemented
-    // const { isAuthenticated } = useAuth();
+    // State to manage loading state
     const [isLoading, setIsLoading] = useState(true);
 
     // Simulate initial app loading/authentication check
@@ -77,6 +61,7 @@ function AppContent() {
                         {/* Public Routes */}
                         <Route path="/" element={<Home />} />
                         <Route path="/contact" element={<Contact />} />
+                        <Route path="contact/team" element={<Team />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/code" element={<UniqueCode />} />
                         <Route path="/afspraak-plannen" element={<Appointment />} />
@@ -88,6 +73,12 @@ function AppContent() {
                         <Route path="/admin/classes" element={<ClassManagement />} />
                         <Route path="/admin/appointments" element={<AppointmentManagement />} />
                         <Route path="/admin/students" element={<StudentManagement />} />
+                        <Route path="*" element={<NotFound />} />
+                        
+                        
+                        
+                        
+                        
 
 
                         {/*/!* Auth Routes - Redirect if already logged in *!/*/}
@@ -137,3 +128,4 @@ function App() {
 }
 
 export default App;
+

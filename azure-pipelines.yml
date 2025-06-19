@@ -1,0 +1,161 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  nodeVersion: '20.x'
+  backendDirectory: 'backend'
+  frontendDirectory: 'frontend'
+  appServiceName: 'eduplan'
+  resourceGroupName: 'eduplan_group'
+  azureSubscription: '973f1839-f051-46c9-88a6-9813c318e3a7'
+
+stages:
+- stage: Build
+  displayName: 'Build Application'
+  jobs:
+  - job: BuildApplication
+    displayName: 'Build Frontend and Backend'
+    steps:
+    - task: NodeTool@0
+      displayName: 'Use Node.js $(nodeVersion)'
+      inputs:
+        versionSpec: $(nodeVersion)
+
+    # Build Frontend
+    - script: |
+        echo "Building frontend with Vite..."
+        cd $(frontendDirectory)
+        npm ci
+        npm run build
+        echo "Frontend build completed"
+      displayName: 'Build Frontend'
+
+    # Install Backend Dependencies
+    - script: |
+        echo "Installing backend dependencies..."
+        cd $(backendDirectory)
+        npm ci --only=production
+        echo "Backend dependencies installed"
+      displayName: 'Install Backend Dependencies'
+
+    # Prepare Combined Deployment Package
+    - script: |
+        echo "Creating combined deployment package..."
+        mkdir -p deploy
+        
+        # Copy backend files
+        echo "Copying backend files..."
+        cp -r $(backendDirectory)/src deploy/
+        cp -r $(backendDirectory)/public deploy/
+        cp -r $(backendDirectory)/migrations deploy/
+        cp -r $(backendDirectory)/config deploy/
+        cp $(backendDirectory)/package.json deploy/
+        cp $(backendDirectory)/package-lock.json deploy/
+        
+        # Copy frontend build files to backend's public directory
+        echo "Copying frontend build files to public directory..."
+        mkdir -p deploy/public/frontend
+        cp -r $(frontendDirectory)/dist/* deploy/public/frontend/
+        
+        # Create web.config for Azure App Service with routing
+        echo "Creating web.config for Azure App Service..."
+        cat > deploy/web.config << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <handlers>
+      <add name="iisnode" path="src/server.js" verb="*" modules="iisnode" />
+    </handlers>
+    <rewrite>
+      <rules>
+        <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">
+          <match url="^src/server.js\/debug[\/]?" />
+        </rule>
+        <rule name="API Routes" stopProcessing="true">
+          <match url="^api/(.*)" />
+          <action type="Rewrite" url="src/server.js" />
+        </rule>
+        <rule name="Static Files" stopProcessing="true">
+          <conditions>
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" />
+          </conditions>
+          <action type="None" />
+        </rule>
+        <rule name="Frontend Routes" stopProcessing="true">
+          <conditions>
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True" />
+            <add input="{REQUEST_URI}" pattern="^/api/" negate="True" />
+          </conditions>
+          <action type="Rewrite" url="/frontend/index.html" />
+        </rule>
+      </rules>
+    </rewrite>
+    <security>
+      <requestFiltering>
+        <hiddenSegments>
+          <remove segment="bin"/>
+        </hiddenSegments>
+      </requestFiltering>
+    </security>
+    <httpErrors existingResponse="PassThrough" />
+  </system.webServer>
+</configuration>
+EOF
+        
+        # Create startup command file
+        echo "Creating startup command..."
+        echo 'node src/server.js' > deploy/startup.txt
+        
+        echo "Deployment package prepared successfully"
+      displayName: 'Prepare Combined Deployment Package'
+
+    - task: ArchiveFiles@2
+      displayName: 'Create Deployment Package'
+      inputs:
+        rootFolderOrFile: 'deploy'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/eduplan-app.zip'
+        replaceExistingArchive: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Deploy to Azure App Service'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeployToAppService
+    displayName: 'Deploy to EduPlan App Service'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            displayName: 'Deploy to Azure Web App'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appName: $(appServiceName)
+              resourceGroupName: $(resourceGroupName)
+              package: '$(Pipeline.Workspace)/drop/eduplan-app.zip'
+              appType: 'webApp'
+              deploymentMethod: 'auto'
+              appSettings: |
+                -NODE_ENV production
+                -PORT 8080
+                -CORS_ORIGIN https://eduplan.azurewebsites.net
+                -PG_USER admineduplan
+                -PG_PASSWORD Eduplan2025!db
+                -PG_NAME eduplandb
+                -PG_HOST eduplan-db-server.postgres.database.azure.com
+                -PG_PORT 5432
+                -PG_SSL true
